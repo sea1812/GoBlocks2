@@ -1,9 +1,12 @@
-package App
+package Components
 
 import (
 	"errors"
 	"github.com/gogf/gf/encoding/gjson"
+	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/net/ghttp"
 	"github.com/gogf/gf/os/gfile"
+	"github.com/gogf/gf/util/guid"
 )
 
 /*
@@ -64,12 +67,71 @@ func (p *TSystemConfig) SaveToFile(AFilename string) {
 
 // TApp 应用成勋对象
 type TApp struct {
-	Name         string  //应用名称
-	Version      float32 //版本编号
-	ConfigDir    string  //保存自定义设置文件的文件夹路径
-	StaticDir    string  //保存静态资源文件的文件夹路径
-	LuaSubDir    string  //保存Lua脚本的子文件夹名
-	PluginSubDir string  //保存插件的子文件夹名
+	Name      string  //应用名称
+	Version   float32 //版本编号
+	Serial    string  //唯一序列号
+	ConfigDir string  //保存自定义设置文件的文件夹路径，默认为./Config
+	StaticDir string  //保存静态资源文件的文件夹路径，默认为./Static
+	CertDir   string  //保存各种证书的文件夹路径，默认为./Cert
+	DataDir   string  //保存本地数据的文件夹路径，默认为./Data
+	LuaDir    string  //保存Lua脚本的子文件夹名，默认为Lua
+	PluginDir string  //保存插件的子文件夹名，默认为Plugin
 
+	Databases    TDatabases    //数据库管理器
+	Redises      TRedises      //缓存Redis管理器
 	SystemConfig TSystemConfig //系统设置项
+	MainServer   *ghttp.Server //主Web服务
+}
+
+/*
+	TApp对象方法：
+	* Init()：初始化方法
+	* Start()：启动方法
+*/
+
+// Init 初始化主程序对象
+func (p *TApp) Init() error {
+	//初始化默认值
+	p.Name = "GoBlocks"
+	p.Version = 0.01
+	p.Serial = guid.S()
+	p.ConfigDir = Const_Config_Dir
+	p.DataDir = Const_Data_Dir
+	p.PluginDir = Const_Plugin_Dir
+	p.CertDir = Const_Cert_Dir
+	p.LuaDir = Const_Lua_Dir
+	p.PluginDir = Const_Plugin_Dir
+	p.MainServer = g.Server()
+	//读取自定义的系统设置
+	e1 := p.SystemConfig.LoadFromFile(gfile.Join(p.ConfigDir, Const_Default_System_Config_File))
+	if e1 != nil {
+		return e1
+	}
+	//初始化数据库连接和缓存，并绑定缓存到数据库连接，Redis必须先于数据库执行
+	p.Redises = TRedises{}
+	e3 := p.Redises.LoadFromFile(gfile.Join(p.ConfigDir, Const_Default_Redis_Config_File))
+	if e3 != nil {
+		return e3
+	}
+	p.Redises.Apply()
+	p.Databases = TDatabases{}
+	e2 := p.Databases.LoadFromFile(gfile.Join(p.ConfigDir, Const_Default_Db_Config_File))
+	if e2 != nil {
+		return e2
+	}
+	p.Databases.Apply()
+	p.Databases.SetCache()
+	//初始化插件管理器
+
+	//初始化路由，包括脚本、插件和反向代理，为简化起见一律使用固定的路由前缀
+
+	//加载默认环境，包括Session和全局对象
+
+	return nil
+}
+
+// Start 启动主服务
+func (p *TApp) Start() {
+
+	p.MainServer.Run()
 }
