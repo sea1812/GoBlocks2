@@ -100,8 +100,27 @@ func (p *TApp) Init() error {
 	p.PluginDir = Const_Plugin_Dir
 	p.CertDir = Const_Cert_Dir
 	p.LuaDir = Const_Lua_Dir
-	p.PluginDir = Const_Plugin_Dir
+	p.StaticDir = Const_Static_Dir
 	p.MainServer = g.Server()
+	//检查目录是否存在，如果不存在则创建之
+	if gfile.Exists(Const_Config_Dir) == false {
+		_ = gfile.Mkdir(Const_Config_Dir)
+	}
+	if gfile.Exists(Const_Data_Dir) == false {
+		_ = gfile.Mkdir(Const_Data_Dir)
+	}
+	if gfile.Exists(Const_Plugin_Dir) == false {
+		_ = gfile.Mkdir(Const_Plugin_Dir)
+	}
+	if gfile.Exists(Const_Lua_Dir) == false {
+		_ = gfile.Mkdir(Const_Lua_Dir)
+	}
+	if gfile.Exists(Const_Cert_Dir) == false {
+		_ = gfile.Mkdir(Const_Cert_Dir)
+	}
+	if gfile.Exists(Const_Static_Dir) == false {
+		_ = gfile.Mkdir(Const_Static_Dir)
+	}
 	//读取自定义的系统设置
 	e1 := p.SystemConfig.LoadFromFile(gfile.Join(p.ConfigDir, Const_Default_System_Config_File))
 	if e1 != nil {

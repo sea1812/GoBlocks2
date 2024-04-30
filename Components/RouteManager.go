@@ -23,9 +23,19 @@ type TRoutes struct {
 
 /*
 	路由管理器方法：
+	* AddItem()：增加项
 	* SaveToFile()：保存到文件
 	* LoadFromFile()：从文件中读取
 */
+
+func (p *TRoutes) AddItem(AItem TRouteItem) {
+	mItem := TRouteItem{
+		Name:   AItem.Name,
+		Type:   AItem.Type,
+		Target: AItem.Target,
+	}
+	p.Items = append(p.Items, &mItem)
+}
 
 func (p *TRoutes) LoadFromFile(AFilename string) error {
 	p.Items = nil

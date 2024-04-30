@@ -1,6 +1,7 @@
 module GoBlocks2
 
 require (
+	github.com/dullgiulio/pingo v0.0.0-20151111190101-8b1949e35b5a
 	github.com/gogf/gcache-adapter v0.1.2
 	github.com/gogf/gf v1.16.9
 )
