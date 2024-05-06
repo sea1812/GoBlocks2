@@ -79,6 +79,7 @@ type TApp struct {
 
 	Databases    TDatabases    //数据库管理器
 	Redises      TRedises      //缓存Redis管理器
+	Plugins      TPlugins      //插件管理器
 	SystemConfig TSystemConfig //系统设置项
 	MainServer   *ghttp.Server //主Web服务
 }
@@ -138,11 +139,16 @@ func (p *TApp) Init() error {
 	if e2 != nil {
 		return e2
 	}
-	p.Databases.Apply()
-	p.Databases.SetCache()
+	p.Databases.Apply()    //连接数据库实体
+	p.Databases.SetCache() //设置数据库缓存
 	//初始化插件管理器
-
-	//初始化路由，包括脚本、插件和反向代理，为简化起见一律使用固定的路由前缀
+	p.Plugins = TPlugins{}
+	e4 := p.Plugins.LoadFromFile(gfile.Join(p.ConfigDir, Const_Default_Plugins_Config_File))
+	if e4 != nil {
+		return e4
+	}
+	p.Plugins.StartAll() //启动全部插件
+	//初始化路由，包括脚本、插件和反向代理的路由，为简化起见一律使用固定的路由前缀
 
 	//加载默认环境，包括Session和全局对象
 
