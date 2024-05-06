@@ -6,6 +6,8 @@ import (
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
 	"github.com/gogf/gf/os/gfile"
+	"net/http/httputil"
+	"net/url"
 )
 
 /*
@@ -16,7 +18,7 @@ type TRouteItem struct {
 	Name   string     //名称
 	Type   TRouteType //路由类型
 	Source string     //路由来源
-	Target string     //路由目标
+	Target string     //路由目标，只对反代和静态目录有效
 }
 
 type TRoutes struct {
@@ -79,19 +81,29 @@ func (p *TRoutes) Apply(AServer *ghttp.Server) {
 	for _, v := range p.Items {
 		switch v.Type {
 		case Route_Static:
-
+			//处理静态目录
+			AServer.AddStaticPath(v.Source, v.Target)
 			return
 		case Route_Plugin:
+			//处理插件路由
+			AServer.BindHandler("/plugin/{plugin_name}", HandlerPlugin)
 			return
 		case Route_Lua:
+			//处理Lua脚本路由
+			AServer.BindHandler("/lua/{lua_name}", HandlerLua)
 			return
 		case Route_Proxy:
+			//处理反向代理路由
+			targetUrl, _ := url.Parse(v.Target)
+			proxy := httputil.NewSingleHostReverseProxy(targetUrl)
+			AServer.BindHandler(v.Source, func(r *ghttp.Request) {
+				proxy.ServeHTTP(r.Response.Writer, r.Request)
+			})
 			return
 		}
-		//处理Lua脚本的路由
-		//处理Plugin插件的路由
-		//处理反向代理的路由
 		//处理Admin后台的路由
+
 		//处理内置功能的路由
+
 	}
 }

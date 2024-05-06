@@ -166,3 +166,13 @@ func (p *TApp) Start() {
 
 	p.MainServer.Run()
 }
+
+// HandlerLua 处理Lua脚本的路由
+func HandlerLua(r *ghttp.Request) {
+
+}
+
+// HandlerPlugin 处理插件的路由
+func HandlerPlugin(r *ghttp.Request) {
+
+}
