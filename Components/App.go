@@ -80,6 +80,7 @@ type TApp struct {
 	Databases    TDatabases    //数据库管理器
 	Redises      TRedises      //缓存Redis管理器
 	Plugins      TPlugins      //插件管理器
+	Routes       TRoutes       //路由管理器
 	SystemConfig TSystemConfig //系统设置项
 	MainServer   *ghttp.Server //主Web服务
 }
@@ -149,7 +150,12 @@ func (p *TApp) Init() error {
 	}
 	p.Plugins.StartAll() //启动全部插件
 	//初始化路由，包括脚本、插件和反向代理的路由，为简化起见一律使用固定的路由前缀
-
+	p.Routes = TRoutes{}
+	e5 := p.Routes.LoadFromFile(gfile.Join(p.ConfigDir, Const_Default_Route_Config_File))
+	if e5 != nil {
+		return e5
+	}
+	p.Routes.Apply(p.MainServer) //应用路由
 	//加载默认环境，包括Session和全局对象
 
 	return nil

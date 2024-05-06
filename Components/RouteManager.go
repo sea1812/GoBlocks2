@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gogf/gf/encoding/gjson"
 	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/net/ghttp"
 	"github.com/gogf/gf/os/gfile"
 )
 
@@ -14,6 +15,7 @@ import (
 type TRouteItem struct {
 	Name   string     //名称
 	Type   TRouteType //路由类型
+	Source string     //路由来源
 	Target string     //路由目标
 }
 
@@ -70,4 +72,26 @@ func (p *TRoutes) SaveToFile(AFilename string) {
 	}
 	mJson := gjson.New(mMaps)
 	_ = gfile.PutContents(AFilename, mJson.Export())
+}
+
+// Apply 应用路由
+func (p *TRoutes) Apply(AServer *ghttp.Server) {
+	for _, v := range p.Items {
+		switch v.Type {
+		case Route_Static:
+
+			return
+		case Route_Plugin:
+			return
+		case Route_Lua:
+			return
+		case Route_Proxy:
+			return
+		}
+		//处理Lua脚本的路由
+		//处理Plugin插件的路由
+		//处理反向代理的路由
+		//处理Admin后台的路由
+		//处理内置功能的路由
+	}
 }
