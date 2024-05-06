@@ -14,6 +14,7 @@ const (
 	Const_Default_System_Config_File = "sys.conf"
 	Const_Default_Db_Config_File     = "db.conf"
 	Const_Default_Redis_Config_File  = "redis.conf"
+	Const_Plugins_Config_File        = "plugins.conf"
 )
 
 type TRouteType int
